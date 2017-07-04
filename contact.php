@@ -9,8 +9,6 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/contact-form.css">
 
-    <script src="js/jquery.js"></script>
-    <script src="js/jquery-migrate-1.2.1.js"></script>
 
     <!--[if lt IE 9]>
     <html class="lt-ie9">
@@ -25,6 +23,10 @@
  
     <script src='js/device.min.js'></script> 
 </head>
+    
+<?php
+  include('./connection.php');
+?>
 
 <body>
 <div class="page">
@@ -63,6 +65,8 @@
                 </nav>
             </div>
         </div>
+        
+        
 
     </header>
     <!--========================================================
@@ -73,15 +77,35 @@
             <div class="container">
                 <h2><em>Reserver</em>Une table</h2>
 
-                <div class="map">
-                  <div id="google-map" class="map_model"></div>
-                  <ul class="map_locations">
-                    <li data-x="2.331382500000018" data-y="48.8482774">
-                      <p>27 rue de Vaugirard 75006 Paris</p>
-                    </li>
-                  </ul>
-                </div>
+                <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d10502.091073671263!2d2.331434!3d48.848241!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x4122ebe09a444c88!2sLa+Maison+du+Jardin!5e0!3m2!1sfr!2smx!4v1499145725603" width="100%" height="400" frameborder="0" style="border:0" allowfullscreen></iframe>
                 <div class="menu">
+                <?php
+                    $query = 'SELECT * FROM conge';
+                    $reponse = $bdd->query($query);
+
+                    while ($donnees = $reponse->fetch())
+                    {
+                        $active = $donnees['activate'];
+                        $display = $donnees['display'];                    
+                        $start_date = $donnees['start_date'];
+                        $end_date = $donnees['end_date'];
+                        $single_date = $donnees['single_date'];
+                        $description = $donnees['description'];
+
+
+                    }
+                    $reponse->closeCursor(); 
+                
+                    if($active) {
+                    ?>
+                    <h2><?php echo $description ?></h2>
+                    <?php if($single_date) { ?>
+                    <h2 style="margin-top: 50px;"><?php echo date_format(date_create($start_date),"d/m/Y") ?></h2>
+                    <?php } 
+                        else { ?>
+                    <h2 style="margin-top: 50px;"><?php echo date_format(date_create($start_date),"d/m/Y") ?>&rarr;<?php echo date_format(date_create($end_date),"d/m/Y") ?></h2>
+                    <?php } } ?>
+                    <?php if($display) { ?>
                     <h2>La Maison du Jardin</h2>
                     <h3>27 Rue de Vaugirard Paris 06</h3>
                     <h3>Métro 12 Rennes</h3>
@@ -97,13 +121,14 @@
                     Samedi	19:15–22:00<br><br>
                     Dimanche	Fermé
                     </h3>
-            
+                    <?php } ?>
                     <h2 style="
     margin-top: 50px;
 ">01 45 48 22 31</h2>
                     <h3><a href="mailto:contact@restaurant-lamaisondujardin.fr">contact@restaurant-lamaisondujardin.fr</a></h3>
                                    
             </div>
+                
         </section>
     </main>
     <!--========================================================

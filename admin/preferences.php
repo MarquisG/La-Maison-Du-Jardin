@@ -29,6 +29,32 @@
 	       ));   
     }
     
+    if(isset($_POST['display_week']) && isset($_POST['password_1']) && isset($_POST['password_2']) && $_POST['password_1']==$_POST['password_2']){
+        
+        $query = 'SELECT password FROM users WHERE id=1';
+        $reponse = $bdd->query($query);
+
+
+        while ($donnees = $reponse->fetch())
+        {
+            $pass = $donnees['password'];
+        }
+        
+        if(md5($_POST['currentPassword'])==$pass){
+            
+            $req = $bdd->prepare('UPDATE users SET password=:pass WHERE id=:id');
+            $req->execute(array(
+            'pass' => md5($_POST['currentPassword']),
+	       'id' => 1
+	       ));
+            
+        }
+
+$reponse->closeCursor(); 
+        
+        
+    }
+        
     if(isset($_POST['currentPassword']) && isset($_POST['password_1']) && isset($_POST['password_2']) && $_POST['password_1']==$_POST['password_2']){
         
         $query = 'SELECT password FROM users WHERE id=1';
@@ -54,7 +80,41 @@ $reponse->closeCursor();
         
         
     }
-    
+        
+    if(isset($_POST['text']) && isset($_POST['start_date']) && isset($_POST['end_date'])){
+        
+        $single = 0;
+        
+        if($_POST['end_date'] == null){
+            $single = 1;
+        }
+            
+        if(isset($_POST['display_week'])){
+            $week = 1;
+        }
+        else{
+            $week=0;
+        }
+        
+        if(isset($_POST['display_close'])){
+            $activate = 1;
+        }
+        else{
+            $activate=0;
+        }
+            
+            $req = $bdd->prepare('UPDATE conge SET description=:text, start_date=:start, end_date=:end, activate=:activate, display=:display, single_date=:single WHERE id=:id');
+            $req->execute(array(
+                'text' => $_POST['text'],
+                'start' => $_POST['start_date'],
+                'end' => $_POST['end_date'],
+                'activate' => $activate,
+                'display' => $week,
+                'single' => $single,
+                'id' => 1
+	       ));
+            
+    }
 
 $query = 'SELECT * FROM users WHERE id=1';
 $reponse = $bdd->query($query);
@@ -70,6 +130,20 @@ while ($donnees = $reponse->fetch())
 
 $reponse->closeCursor(); 
     
+$query = 'SELECT * FROM conge';
+$reponse = $bdd->query($query);
+
+while ($donnees = $reponse->fetch())
+{
+    $active = $donnees['activate'];
+    $display = $donnees['display'];                    
+    $start_date = $donnees['start_date'];
+    $end_date = $donnees['end_date'];
+    $single_date = $donnees['single_date'];
+    $description = $donnees['description'];
+}
+        
+$reponse->closeCursor();         
     
 ?>
     
@@ -101,12 +175,46 @@ $reponse->closeCursor();
       <div class="templatemo-content-wrapper">
         <div class="templatemo-content">
 
-          <h1>Preferences</h1>
-          <p class="margin-bottom-15">Préférence Utilisateur</p>
+          <h1>Horaires</h1>
+            <form action="#" method="post">
+                <div class="col-md-12">
+
+                    <div class="row"><br/>
+                        <input type="checkbox" <?php if($display){ echo "checked"; } ?> name="display_week"/>
+                        <label for="display_week">Afficher/cacher les horaires de la semaine</label>
+                    </div>
+                    <div class="row"><br/>
+                        <input type="checkbox" <?php if($active){ echo "checked"; } ?> name="display_close"/>
+                        <label for="display_week">Afficher/cacher les fermetures exceptionnelles</label>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6"><br/>
+                            <label for="text">Text</label>
+                            <input type="text" class="form-control" name="text" value="<?php echo $description ?>" >  
+                        </div>
+                    </div><br>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="start_date">Date de début</label><br/>
+                            <input type="date" name="start_date" value="<?php echo $start_date ?>"/>
+                            
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="start_date">Date de fin (laisser vide si date unique)</label><br/>
+                            <input type="date" name="end_date" value="<?php echo $end_date ?>"/>
+                            
+                        </div>
+                    </div>
+                    <br/>
+                  <input type="submit" value="Envoyer" class="btn btn-default"/><hr>
+                </div>
+                    
+            </form>
+ 
           <div class="row">
             <div class="col-md-12">
               <form role="form" id="templatemo-preferences-form" action="#" method="get">
-
                 <div class="row">
                     <h3>Changer de mot de passe</h3>
                   <div class="col-md-6 margin-bottom-15">
